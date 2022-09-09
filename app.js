@@ -9,6 +9,8 @@ const ExpressError = require("./expressError")
 
 app.use(express.json());
 
+/** Import routes from routes directory */
+
 const cRoutes = require("./routes/companies")
 app.use("/companies", cRoutes)
 
@@ -26,7 +28,7 @@ app.use((err, req, res, next) => {
 
   return res.json({
     error: err,
-    message: err.message
+    //message: err.message
   });
 });
 
