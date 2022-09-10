@@ -19,6 +19,11 @@ router.get('/', async (req, res, next) => {
 router.get('/:code', async (req, res, next) => {
     try {
         const code = req.params.code;
+        const indResults = await db.query(`
+        SELECT i.name FROM industries as i JOIN industries_companies 
+        ON i.code=industries_companies.ind_code
+        WHERE comp_code=$1
+    `, [code])
         const companyResults = await db.query(`
         SELECT * FROM companies
         WHERE code = $1`, 
@@ -29,6 +34,7 @@ router.get('/:code', async (req, res, next) => {
         }
         const company = companyResults.rows[0];
         company.invoices = invoiceResults.rows;
+        company.industries = indResults.rows;
         return res.json({company: company})
     } catch(e) {
         return next(e)
@@ -56,6 +62,7 @@ router.put('/:code', async (req, res, next) => {
     try {
         const { code } = req.params;
         const { name, description} = req.body;
+       
         const results = await db.query(`
         UPDATE companies SET name=$1, description=$2
         WHERE code=$3
