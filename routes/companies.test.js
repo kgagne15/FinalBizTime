@@ -10,6 +10,8 @@ const db = require("../db");
 
 
 let testCompany;
+let testIndustry; 
+let testIndustryCompany;
 
 beforeEach(async function() {
     let result = await db.query(`
@@ -18,6 +20,20 @@ beforeEach(async function() {
         RETURNING code, name, description
     `);
     testCompany = result.rows[0];
+
+    let indResult = await db.query(`
+        INSERT INTO industries (code, name)
+        VALUES ('tech', 'Information Technology')
+        RETURNING code, name
+    `)
+    testIndustry = indResult.rows[0]
+
+    let indCompResult = await db.query(`
+        INSERT INTO industries_companies (comp_code, ind_code)
+        VALUES ('test', 'tech')
+        RETURNING comp_code, ind_code
+    `)  
+    testIndustryCompany = indCompResult.rows[0]
 });
 
 describe("GET /companies", function() {
@@ -35,7 +51,7 @@ describe("GET /companies/:code", function() {
         const response = await request(app).get(`/companies/${testCompany.code}`);
         expect(response.statusCode).toEqual(200);
         expect(response.body).toEqual({company: {code: testCompany.code, description: testCompany.description,
-            invoices: [], name: testCompany.name}});
+            invoices: [], name: testCompany.name, industries: [{"name": "Information Technology"}]}});
     });
 
     test("Get company that does not exist", async function() {
@@ -83,6 +99,8 @@ describe("DELETE /companies/:code", function() {
 afterEach(async function() {
     // delete any data created by test
     await db.query("DELETE FROM companies");
+    await db.query("DELETE FROM industries");
+    await db.query("DELETE FROM industries_companies");
   });
   
   afterAll(async function() {
