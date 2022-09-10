@@ -47,12 +47,12 @@ describe("GET /companies/:code", function() {
 describe("POST /companies", function() {
     test("Create new company", async function() {
         const response = await request(app).post('/companies').send({
-            code: "GAG",
+            code: expect.any(String),
             name: "Gagne corporation",
             description: "Definitely a real company"
         });
         expect(response.statusCode).toEqual(201);
-        expect(response.body).toEqual({company: {code: "GAG", name: "Gagne corporation", description: "Definitely a real company"}})
+        expect(response.body).toEqual({company: {code: expect.any(String), name: "Gagne corporation", description: "Definitely a real company"}})
     });
 });
 
